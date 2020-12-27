@@ -2,6 +2,7 @@ import json
 
 # ---- Data Model
 
+
 class Book:
     def __init__(self, oid, title, author):
         self.oid = oid
@@ -13,7 +14,14 @@ class Book:
         self.last_read_position = None
 
     def __repr__(self):
-        return "Book(oid={0}, title={1}, author={2}, read_progress={3}, last_read_position={4}, annotations={5}, bookmarks={6})".format(self.oid, self.title, self.author, self.read_progress, self.last_read_position, self.annotations, self.bookmarks)
+        return "Book(oid={0}, title={1}, author={2}, \
+                read_progress={3}, \
+                last_read_position={4}, annotations={5}, \
+                bookmarks={6})".format(self.oid, self.title, self.author,
+                                       self.read_progress,
+                                       self.last_read_position,
+                                       self.annotations, self.bookmarks)
+
 
 class Annotation:
     def __init__(self, oid, book_oid, edit_time, value):
@@ -21,13 +29,25 @@ class Annotation:
         self.book_oid = book_oid
         self.edit_time = edit_time
         val = json.loads(value)
-        self.begin = val["begin"]
-        self.end = val["end"]
-        self.citation = val["text"]
+        if "begin" in val:
+            self.begin = val["begin"]
+        else:
+            self.begin = ""
+        if "end" in val:
+            self.end = val["end"]
+        else:
+            self.end = ""
+        if "text" in val:
+            self.citation = val["text"]
+        else:
+            self.citation = ""
         self.note = ""
 
     def __repr__(self):
-        return "Annotation(oid={0}, book_oid={1}, citation={2}, note={3})".format(self.oid, self.book_oid, self.citation, self.note)
+        return "Annotation(oid={0}, book_oid={1}, citation={2}, \
+                note={3})".format(self.oid, self.book_oid, self.citation,
+                                  self.note)
+
 
 class Note:
     def __init__(self, oid, book_oid, edit_time, value):
@@ -36,6 +56,7 @@ class Note:
         self.edit_time = edit_time
         self.text = json.loads(value)["text"]
 
+
 class Bookmark:
     def __init__(self, oid, book_oid, edit_time, value):
         self.oid = oid
@@ -43,11 +64,13 @@ class Bookmark:
         self.edit_time = edit_time
         self.anchor = json.loads(value)["anchor"]
 
+
 class ReadProgress:
     def __init__(self, book_oid, edit_time, progress):
         self.book_oid = book_oid
         self.edit_time = edit_time
         self.progress = float(progress)
+
 
 class LastReadPosition:
     def __init__(self, book_oid, edit_time, read_position):
@@ -56,6 +79,7 @@ class LastReadPosition:
         self.read_position = read_position
 
 # ---- DB Queries
+
 
 def fetch_items(conn, query, class_def):
     res = {}
@@ -69,6 +93,7 @@ def get_all_open_books(conn):
     return fetch_items(conn, get_all_books_query, Book)
 
 ## All annotations
+
 
 def get_all_annotations(conn):
     get_all_annotations_query = """SELECT Items.OID, Items.ParentID AS BookId, Tags.TimeEdt, Tags.Val FROM Tags
@@ -114,7 +139,6 @@ def get_all_last_read_position(conn):
     return map(lambda o : LastReadPosition(*o), conn.execute(get_all_read_position_query))
 
 
-
 def build_books_objects_database(conn):
     books = get_all_open_books(conn)
     annotations = get_all_annotations(conn)
@@ -140,17 +164,8 @@ def build_books_objects_database(conn):
     return books
 
 
-
-
-import sqlite3
-
-db_path = "/Users/Telequid/Documents/vivlio/books.db"
-
-conn = sqlite3.connect(db_path)
-books = build_books_objects_database(conn)
-
-
-
-
-
-
+if __name__ == "__main__":
+    import sqlite3
+    db_path = "books.db"
+    conn = sqlite3.connect(db_path)
+    books = build_books_objects_database(conn)

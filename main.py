@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import sqlite3, sys
+import sqlite3
+import sys
 from db import build_books_objects_database
 from text_exporter import bookDictsExporter
 
