@@ -1,4 +1,7 @@
+# coding=utf-8
+
 import json
+import re
 
 # ---- Data Model
 
@@ -29,8 +32,13 @@ class Annotation:
         self.book_oid = book_oid
         self.edit_time = edit_time
         val = json.loads(value)
+        self.page = ""
         if "begin" in val:
             self.begin = val["begin"]
+            match = re.compile(".*page=(\d+)&.*").match(self.begin)
+            if match:
+                (start, end) = match.regs[1]
+                self.page = self.begin[start:end]
         else:
             self.begin = ""
         if "end" in val:

@@ -1,7 +1,5 @@
-
-
 def annotationExporter(annotation):
-    s = annotation.citation + "\n"
+    s = "page {0}: {1}\n".format(annotation.page, annotation.citation)
     if len(annotation.note) > 0:
         s += "Note: %s\n" % annotation.note
     return s
@@ -12,6 +10,7 @@ def bookExporter(book):
     for annotation in book.annotations:
         s += annotationExporter(annotation) + "\n"
     return s
+
 
 def bookDictsExporter(books):
     for book in books.values():
